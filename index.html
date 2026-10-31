@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ALORA | Tarot & Arcana</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-deep: #050203;
+            --bg-surface: #120508;
+            --red-blood: #8B142D;
+            --red-wine: #641B35;
+            --text-cream: #F0E4DC;
+            --border-glow: rgba(139, 20, 45, 0.5);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-deep); color: var(--text-cream); line-height: 1.6; overflow-x: hidden; }
+
+        .ambient-light {
+            position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at 50% 50%, rgba(139, 20, 45, 0.15) 0%, transparent 60%);
+            z-index: -2; pointer-events: none;
+            animation: breathe 8s infinite alternate ease-in-out;
+        }
+
+        @keyframes breathe {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+
+        #particles { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; overflow: hidden; }
+        .ember {
+            position: absolute; bottom: -10px; width: 4px; height: 4px;
+            background: radial-gradient(circle, var(--red-blood) 0%, transparent 80%);
+            border-radius: 50%; opacity: 0;
+            animation: floatUp linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            20% { opacity: 0.8; }
+            80% { opacity: 0.5; }
+            100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
+        }
+
+        header { text-align: center; padding: 2.5rem 1rem 1.5rem; background: linear-gradient(to bottom, var(--bg-surface), transparent); border-bottom: 1px solid var(--red-wine); }
+        .logo { font-size: 2.8rem; font-weight: 700; color: var(--red-blood); letter-spacing: 6px; text-transform: uppercase; text-shadow: 0 0 20px var(--border-glow); }
+        .subtitle { font-size: 1rem; color: var(--text-cream); opacity: 0.8; letter-spacing: 3px; margin-top: 5px; }
+
+        .btn {
+            background: rgba(18, 5, 8, 0.6); border: 1px solid var(--red-blood); color: var(--text-cream);
+            padding: 14px 24px; font-size: 1rem; border-radius: 6px; cursor: pointer; transition: all 0.3s ease;
+            box-shadow: inset 0 0 15px rgba(139, 20, 45, 0.2); width: 100%; max-width: 320px; margin: 12px auto; display: block; backdrop-filter: blur(5px);
+        }
+        .btn:hover, .btn:active { background: var(--red-blood); box-shadow: 0 0 25px rgba(139, 20, 45, 0.7); transform: translateY(-2px); }
+
+        .page { display: none; padding: 20px; animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1); max-width: 800px; margin: 0 auto; min-height: 70vh; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .splash-quote { text-align: center; font-style: italic; color: var(--red-blood); margin: 40px 0 50px; font-size: 1.25rem; text-shadow: 0 0 10px rgba(139,20,45,0.4); }
+
+        .reading-area { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 30px; }
+        .card-container { width: 140px; perspective: 1000px; cursor: pointer; }
+        .card { width: 100%; aspect-ratio: 2 / 3.2; position: relative; transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1); transform-style: preserve-3d; }
+        .card.revealed { transform: rotateY(180deg); }
+        .card.reversed.revealed { transform: rotateY(180deg) rotateZ(180deg); }
+        
+        .card-face {
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+            border-radius: 8px; overflow: hidden; box-shadow: 0 5px 25px rgba(0,0,0,0.9);
+            border: 1px solid var(--red-wine);
+        }
+        
+        .card-back { background: repeating-linear-gradient(45deg, #120508, #120508 10px, #050203 10px, #050203 20px); border: 2px solid var(--red-blood); display: flex; align-items: center; justify-content: center; }
+        .card-back::after { content: 'ALORA'; color: var(--red-blood); font-weight: bold; letter-spacing: 3px; transform: rotate(-90deg); opacity: 0.5; font-size: 1.5rem; }
+
+        .card-front { transform: rotateY(180deg); background-color: var(--bg-deep); }
+        .card-front img {
+            width: 100%; height: 100%; object-fit: cover;
+            filter: grayscale(100%) sepia(100%) hue-rotate(315deg) saturate(450%) contrast(140%) brightness(60%);
+            mix-blend-mode: hard-light;
+        }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 2, 3, 0.95); z-index: 1000; overflow-y: auto; padding: 20px; backdrop-filter: blur(8px); }
+        .modal-content { background: var(--bg-surface); border: 1px solid var(--red-wine); max-width: 500px; margin: 20px auto; padding: 30px; border-radius: 12px; box-shadow: 0 0 50px rgba(100, 27, 53, 0.5); position: relative; }
+        .close-modal { position: absolute; top: 15px; left: 20px; color: var(--red-blood); font-size: 32px; cursor: pointer; transition: 0.3s; }
+        
+        .card-name-title { color: var(--red-blood); text-align: center; font-size: 1.6rem; margin-bottom: 15px; border-bottom: 1px solid var(--red-wine); padding-bottom: 15px; }
+        .modal-card-visual { width: 180px; height: 288px; margin: 0 auto 25px; display: block; border-radius: 8px; box-shadow: 0 0 30px var(--border-glow); border: 2px solid var(--red-wine); overflow: hidden; background: #000; }
+        .modal-card-visual img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%) sepia(100%) hue-rotate(315deg) saturate(450%) contrast(140%) brightness(60%); mix-blend-mode: hard-light; }
+        
+        .interpretation-section { margin-bottom: 25px; background: linear-gradient(to left, rgba(139, 20, 45, 0.05), transparent); padding: 15px; border-radius: 5px; border-right: 3px solid var(--red-wine); }
+        .interpretation-section h4 { color: var(--red-blood); margin-bottom: 10px; font-size: 1.1rem; }
+        .interpretation-section p { color: rgba(240, 228, 220, 0.9); font-size: 0.95rem; line-height: 1.9; }
+
+        .about-text { text-align: center; font-size: 1.1rem; margin: 40px 0; line-height: 2.2; }
+        .footer { text-align: center; margin-top: 60px; padding-top: 25px; border-top: 1px solid var(--red-wine); font-size: 0.9rem; color: rgba(240, 228, 220, 0.5); }
+        .footer a { color: var(--red-blood); text-decoration: none; font-weight: bold; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+    <div class="ambient-light"></div>
+    <div id="particles"></div>
+
+    <header>
+        <div class="logo">ALORA</div>
+        <div class="subtitle">Tarot & Arcana</div>
+    </header>
+
+    <div id="home" class="page active">
+        <div class="splash-quote">"Where shadows speak and fire remembers."</div>
+        <button class="btn" onclick="nav('reading-menu')">ورود به دنیای تاروت</button>
+        <button class="btn" onclick="nav('about')">درباره آلورا</button>
+    </div>
+
+    <div id="reading-menu" class="page">
+        <h2 style="text-align: center; color: var(--red-blood); margin-bottom: 30px; font-weight: 300;">انتخاب چیدمان</h2>
+        <button class="btn" onclick="startReading(1)">فال یک کارتی (شهود روزانه)</button>
+        <button class="btn" onclick="startReading(3)">گذشته، حال، آینده (مسیر)</button>
+        <button class="btn" onclick="startReading(5)">فال رابطه (پیوند سایه‌ها)</button>
+        <button class="btn" onclick="nav('home')" style="border-color: #444; margin-top: 40px; background: transparent;">بازگشت</button>
+    </div>
+
+    <div id="reading-table" class="page">
+        <h2 id="reading-title" style="text-align: center; color: var(--red-blood); margin-bottom: 10px;"></h2>
+        <p style="text-align: center; font-size: 0.85rem; opacity: 0.6; margin-bottom: 30px;">برای کشف راز، روی کارت‌ها ضربه بزنید</p>
+        <div class="reading-area" id="cards-container"></div>
+        <button class="btn" onclick="nav('reading-menu')" style="margin-top: 50px; border-color: #444; background: transparent;">پایان و بازگشت</button>
+    </div>
+
+    <div id="about" class="page">
+        <h2 style="text-align: center; color: var(--red-blood);">About Alora</h2>
+        <div class="about-text">
+            آلورا دعوتی است به دنیای سایه‌ها و رازها.<br>
+            جایی که حقیقت در تاریکی می‌درخشد و نمادها با شما سخن می‌گویند.<br>
+            این فضا برای کشف، شهود و بازتاب درون شما ساخته شده است.<br>
+            فال تاروت در اینجا پیش‌گویی قطعی نیست، بلکه آینه‌ای است در برابر روح شما.
+        </div>
+        <div class="footer">
+            <p>خلق شده در سایه ها</p>
+            <p style="margin-top: 5px;">جهت ارتباط: <a href="https://t.me/Phonixsoul" dir="ltr">t.me/Phonixsoul</a></p>
+        </div>
+        <button class="btn" onclick="nav('home')" style="margin-top: 40px; border-color: #444; background: transparent;">بازگشت</button>
+    </div>
+
+    <div id="card-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">×</span>
+            <h3 id="modal-card-name" class="card-name-title"></h3>
+            <div style="text-align: center; margin-bottom: 25px;">
+                <div class="modal-card-visual"><img id="modal-card-img" src="" alt="Card"></div>
+                <p id="modal-card-state" style="color: var(--red-blood); margin-top: 15px; font-weight: bold; letter-spacing: 1px;"></p>
+            </div>
+            <div id="modal-interpretation"></div>
+        </div>
+    </div>
+
+    <script>
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for(let i = 0; i < 20; i++) {
+                let ember = document.createElement('div');
+                ember.className = 'ember';
+                ember.style.left = Math.random() * 100 + 'vw';
+                ember.style.animationDuration = (Math.random() * 5 + 3) + 's';
+                ember.style.animationDelay = (Math.random() * 5) + 's';
+                container.appendChild(ember);
+            }
+        }
+        createParticles();
+
+        const wikimediaBase = "https://upload.wikimedia.org/wikipedia/commons/";
+        const majorArcanaData = [
+            { id: "m0", img: "9/90/RWS_Tarot_00_Fool.jpg", en: "The Fool", fa: "ابله", 
+              upGen: "یه شروع کاملاً جدید! وقتشه دل رو به دریا بزنی و بدون ترس قدم برداری.", upAdv: "زیاد فکر نکن، فقط شروع کن و ریسک‌پذیر باش.",
+              revGen: "بی‌احتیاطی و تصمیمات عجولانه. ممکنه الکی خودت رو تو دردسر بندازی.", revAdv: "قبل از پریدن، خوب زیر پات رو نگاه کن." },
+            { id: "m1", img: "d/de/RWS_Tarot_01_Magician.jpg", en: "The Magician", fa: "جادوگر", 
+              upGen: "تو الان قدرت اینو داری که همه‌چیز رو به نفع خودت تغییر بدی. مهارت‌هات رو دست‌کم نگیر.", upAdv: "از تمام توانایی‌هات استفاده کن، تو می‌تونی.",
+              revGen: "استعدادت داره هدر میره یا داری خودت رو گول می‌زنی.", revAdv: "اهدافت رو دوباره چک کن و با خودت صادق باش." },
+            { id: "m2", img: "8/88/RWS_Tarot_02_High_Priestess.jpg", en: "The High Priestess", fa: "کاهن اعظم", 
+              upGen: "به حست اعتماد کن. جواب سوالاتی که داری، تو دل خودت پنهان شده.", upAdv: "کمی سکوت کن و به صدای درونت گوش بده.",
+              revGen: "داری صدای درونت رو نادیده می‌گیری و به دیگران بیشتر از خودت اعتماد می‌کنی.", revAdv: "احساساتت رو سرکوب نکن." },
+            { id: "m3", img: "d/d2/RWS_Tarot_03_Empress.jpg", en: "The Empress", fa: "ملکه", 
+              upGen: "رشد، زیبایی و عشق. همه‌چیز داره تو مسیر درست و مثبتی پیش میره.", upAdv: "از لحظه لذت ببر و به خودت برس.",
+              revGen: "وابستگی بیش از حد به بقیه یا از دست دادن اعتماد به نفس.", revAdv: "اول باید یاد بگیری خودت رو دوست داشته باشی." },
+            { id: "m4", img: "c/c3/RWS_Tarot_04_Emperor.jpg", en: "The Emperor", fa: "امپراتور", 
+              upGen: "نظم، قدرت و قانون. الان وقتشه که با منطق و مدیریت اوضاع رو دست بگیری.", upAdv: "محکم باش و روی تصمیماتت پافشاری کن.",
+              revGen: "لجبازی زیاد، دیکتاتوری یا از دست دادن کنترل اوضاع.", revAdv: "انعطاف‌پذیر باش، با زور نمیشه همه‌چیز رو حل کرد." },
+            { id: "m5", img: "8/8d/RWS_Tarot_05_Hierophant.jpg", en: "The Hierophant", fa: "پاپ", 
+              upGen: "احترام به سنت‌ها، یادگیری و گوش دادن به حرف یه راهنما یا مشاور.", upAdv: "گاهی لازمه طبق قوانین و تجربه‌های قبلی پیش بری.",
+              revGen: "شکستن چارچوب‌ها و شنا کردن خلاف جهت آب.", revAdv: "اگه حس می‌کنی قوانین دست و پات رو بستن، بشکنش‌شون." },
+            { id: "m6", img: "3/3a/RWS_Tarot_06_Lovers.jpg", en: "The Lovers", fa: "عشاق", 
+              upGen: "عشق عمیق، هماهنگی و یه انتخاب مهم که باید با دلت بگیری.", upAdv: "به قلبت اعتماد کن، انتخابت درسته.",
+              revGen: "درگیری عاطفی، بی‌اعتمادی یا انتخاب‌های اشتباه تو روابط.", revAdv: "ارتباطت با بقیه رو شفاف کن تا سوءتفاهم پیش نیاد." },
+            { id: "m7", img: "9/9b/RWS_Tarot_07_Chariot.jpg", en: "The Chariot", fa: "ارابه", 
+              upGen: "پیروزی با اراده و تمرکز! موانع رو کنار می‌زنی و با سرعت به سمت هدفت میری.", upAdv: "کنترل اوضاع رو تو دستت نگه دار و متوقف نشو.",
+              revGen: "از دست دادن کنترل و روبرو شدن با موانع غیرمنتظره.", revAdv: "یکم سرعتت رو کم کن تا مسیرت رو گم نکنی." },
+            { id: "m8", img: "f/f5/RWS_Tarot_08_Strength.jpg", en: "Strength", fa: "قدرت", 
+              upGen: "قدرت درونی، صبر و کنترل اعصاب. با مهربانی می‌تونی بزرگترین مشکلات رو حل کنی.", upAdv: "صبور باش و با ملایمت جلو برو.",
+              revGen: "ضعف، شک به خودت و تسلیم شدن در برابر ترس‌ها.", revAdv: "به خودت ایمان داشته باش، تو قوی‌تر از این حرفایی." },
+            { id: "m9", img: "4/4d/RWS_Tarot_09_Hermit.jpg", en: "The Hermit", fa: "درویش", 
+              upGen: "نیاز به تنهایی و فکر کردن. باید کمی از شلوغی دور بشی تا راهت رو پیدا کنی.", upAdv: "به خودت زمان بده و دور از بقیه فکر کن.",
+              revGen: "انزوای بیش از حد، احساس تنهایی و افسردگی.", revAdv: "از پیله‌ت بیا بیرون، آدم‌ها بهت نیاز دارن." },
+            { id: "m10", img: "3/3c/RWS_Tarot_10_Wheel_of_Fortune.jpg", en: "Wheel of Fortune", fa: "چرخ سرنوشت", 
+              upGen: "شانس باهاته! چرخونه به نفع تو چرخیده و تغییرات مثبتی تو راهه.", upAdv: "با جریان تغییرات همراه شو و از فرصت‌ها استفاده کن.",
+              revGen: "بدشانسی موقت و اتفاقاتی که اصلاً کنترلشون دست تو نیست.", revAdv: "مقاومت نکن، این روزهای سخت هم می‌گذره." },
+            { id: "m11", img: "e/e0/RWS_Tarot_11_Justice.jpg", en: "Justice", fa: "عدالت", 
+              upGen: "کارما و انصاف. هرچی کاشتی همون رو درو می‌کنی و نتیجه عادلانه خواهد بود.", upAdv: "صادق باش و مسئولیت کارهات رو بپذیر.",
+              revGen: "بی‌عدالتی، دروغ یا تلاش برای فرار از عواقب کارها.", revAdv: "حقیقت بالاخره روشن میشه، پس پنهان‌کاری نکن." },
+            { id: "m12", img: "2/2b/RWS_Tarot_12_Hanged_Man.jpg", en: "The Hanged Man", fa: "مرد آویزان", 
+              upGen: "یه مکث اجباری! باید رها کنی و به مسائل از یه زاویه کاملاً جدید نگاه کنی.", upAdv: "دست و پا نزن، بذار زمان همه‌چیز رو حل کنه.",
+              revGen: "لجبازی، مقاومت در برابر تغییر و گیر کردن تو گذشته.", revAdv: "تا وقتی زاویه دیدت رو عوض نکنی، هیچی تغییر نمی‌کنه." },
+            { id: "m13", img: "d/d7/RWS_Tarot_13_Death.jpg", en: "Death", fa: "مرگ", 
+              upGen: "پایان یه دوره و شروع یه فصل جدید. نترس، این یه تغییر بزرگ و ضروریه.", upAdv: "چیزهایی که دیگه برات کار نمی‌کنن رو رها کن.",
+              revGen: "ترس از تغییر و چسبیدن به گذشته‌ای که دیگه تموم شده.", revAdv: "هرچی بیشتر مقاومت کنی، تغییر دردناک‌تر میشه." },
+            { id: "m14", img: "f/f8/RWS_Tarot_14_Temperance.jpg", en: "Temperance", fa: "اعتدال", 
+              upGen: "تعادل، آرامش و پیدا کردن راه میانه. پرهیز از افراط و تفریط.", upAdv: "عجله نکن، با آرامش پیش برو و تعادل رو حفظ کن.",
+              revGen: "بی‌نظمی، افراط تو کارها و به هم خوردن آرامش روانی.", revAdv: "داری تند میری، باید تعادل زندگیت رو برگردونی." },
+            { id: "m15", img: "5/55/RWS_Tarot_15_Devil.jpg", en: "The Devil", fa: "شیطان", 
+              upGen: "وسوسه و گیر افتادن تو یه رابطه یا عادت سمی. احساس می‌کنی راه فرار نداری.", upAdv: "زنجیرها رو پاره کن، تو آزادی اما خودت رو محدود کردی.",
+              revGen: "رها شدن از گیر و دارها، غلبه بر اعتیاد و پس گرفتن آزادی.", revAdv: "داری مسیر درست رو میری، به این رهایی ادامه بده." },
+            { id: "m16", img: "5/53/RWS_Tarot_16_Tower.jpg", en: "The Tower", fa: "برج", 
+              upGen: "فروپاشی ناگهانی و شوک! یه تغییر غیرمنتظره اما لازم برای خراب کردن پایه‌های اشتباه.", upAdv: "بذار خراب بشه، قراره یه چیز بهتر بسازی.",
+              revGen: "ترس از فروپاشی و به تعویق انداختن یه اتفاق اجتناب‌ناپذیر.", revAdv: "جلوگیری از این تغییر فقط اوضاع رو بدتر می‌کنه." },
+            { id: "m17", img: "c/cd/RWS_Tarot_17_Star.jpg", en: "The Star", fa: "ستاره", 
+              upGen: "امید، آرامش بعد از طوفان و انرژی‌های شفا‌بخش. آینده روشنه.", upAdv: "ایمانت رو حفظ کن و به مسیرت امیدوار باش.",
+              revGen: "ناامیدی، بدبینی و از دست دادن انگیزه برای ادامه راه.", revAdv: "تاریکی موقتیه، ستاره‌ات هنوز اونجاست." },
+            { id: "m18", img: "7/7f/RWS_Tarot_18_Moon.jpg", en: "The Moon", fa: "ماه", 
+              upGen: "توهم، ترس‌های پنهان و گیجی. همه‌چیز اونطوری که به نظر میاد نیست.", upAdv: "مراقب فریب باش و تا روشن شدن قضیه تصمیم مهمی نگیر.",
+              revGen: "پیدا شدن حقیقت و برطرف شدن سوءتفاهم‌های قدیمی.", revAdv: "حالا که حقیقت روشنه، با شجاعت باهاش روبرو شو." },
+            { id: "m19", img: "1/17/RWS_Tarot_19_Sun.jpg", en: "The Sun", fa: "خورشید", 
+              upGen: "خوشبختی مطلق، موفقیت، انرژی مثبت و شفافیت. روزهای خوب رسیدن.", upAdv: "از این انرژی و شادی لذت ببر و جشن بگیر.",
+              revGen: "غمگینی موقت یا موفقیت‌هایی که یکم به تاخیر افتادن.", revAdv: "ناامید نشو، خورشید بالاخره از پشت ابر میاد بیرون." },
+            { id: "m20", img: "d/dd/RWS_Tarot_20_Judgement.jpg", en: "Judgement", fa: "قضاوت", 
+              upGen: "بیداری درونی، بخشش خودت و دیگران. وقتشه یه تولد دوباره رو تجربه کنی.", upAdv: "گذشته رو ببخش و یه صفحه جدید تو زندگیت باز کن.",
+              revGen: "شک به خود، ترس از قضاوت شدن و گیر کردن تو احساس گناه.", revAdv: "خودت رو سرزنش نکن، تو شایسته بخششی." },
+            { id: "m21", img: "f/ff/RWS_Tarot_21_World.jpg", en: "The World", fa: "جهان", 
+              upGen: "رسیدن به هدف! کامل شدن یک چرخه و موفقیت نهایی تو دستاته.", upAdv: "به خودت افتخار کن، تو این مرحله رو با موفقیت تموم کردی.",
+              revGen: "کارهای ناتمام و احساس گیر کردن تو قدم‌های آخر.", revAdv: "کار رو نصفه رها نکن، فقط یه قدم تا پایان مونده." }
+        ];
+
+        const tarotData = majorArcanaData.map(c => ({
+            id: c.id, nameFa: c.fa, nameEn: c.en, imgSrc: wikimediaBase + c.img,
+            upright: { general: c.upGen, advice: c.upAdv },
+            reversed: { general: c.revGen, advice: c.revAdv }
+        }));
+
+        function nav(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function startReading(cardCount) {
+            const container = document.getElementById('cards-container');
+            container.innerHTML = '';
+            
+            let titles = {1: 'شهود روزانه', 3: 'مسیر (گذشته، حال، آینده)', 5: 'پیوند سایه‌ها'};
+            document.getElementById('reading-title').innerText = titles[cardCount];
+
+            let deck = [...tarotData].sort(() => 0.5 - Math.random());
+            let selectedCards = deck.slice(0, cardCount);
+
+            selectedCards.forEach((card, index) => {
+                let isReversed = Math.random() > 0.7;
+                let cardEl = document.createElement('div');
+                cardEl.className = 'card-container';
+                
+                cardEl.style.opacity = '0';
+                cardEl.style.transform = 'translateY(30px)';
+                cardEl.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                
+                cardEl.innerHTML = `
+                    <div class="card" onclick="revealCard(this, '${card.id}', ${isReversed})">
+                        <div class="card-face card-back"></div>
+                        <div class="card-face card-front">
+                            <img src="${card.imgSrc}" alt="${card.nameEn}">
+                        </div>
+                    </div>
+                `;
+                container.appendChild(cardEl);
+                
+                setTimeout(() => {
+                    cardEl.style.opacity = '1';
+                    cardEl.style.transform = 'translateY(0)';
+                }, index * 250);
+            });
+
+            nav('reading-table');
+        }
+
+        function revealCard(element, cardId, isReversed) {
+            if(!element.classList.contains('revealed')) {
+                element.classList.add('revealed');
+                if(isReversed) element.classList.add('reversed');
+            } else {
+                openModal(cardId, isReversed);
+            }
+        }
+
+        function openModal(cardId, isReversed) {
+            const card = tarotData.find(c => c.id === cardId);
+            const data = isReversed ? card.reversed : card.upright;
+            
+            document.getElementById('modal-card-name').innerText = `${card.nameFa} | ${card.nameEn}`;
+            document.getElementById('modal-card-state').innerText = isReversed ? 'وضعیت: معکوس (Reversed)' : 'وضعیت: مستقیم (Upright)';
+            
+            const imgEl = document.getElementById('modal-card-img');
+            imgEl.src = card.imgSrc;
+            imgEl.style.transform = isReversed ? 'rotate(180deg)' : 'rotate(0deg)';
+
+            document.getElementById('modal-interpretation').innerHTML = `
+                <div class="interpretation-section"><h4>معنی کارت</h4><p>${data.general}</p></div>
+                <div class="interpretation-section"><h4>راهنمایی تاریک</h4><p>${data.advice}</p></div>
+            `;
+            
+            document.getElementById('card-modal').style.display = 'block';
+        }
+
+        function closeModal() { document.getElementById('card-modal').style.display = 'none'; }
+
+        if (window.Telegram && window.Telegram.WebApp) { 
+            Telegram.WebApp.ready(); 
+            Telegram.WebApp.expand(); 
+            Telegram.WebApp.setHeaderColor('#050203');
+            Telegram.WebApp.setBackgroundColor('#050203');
+        }
+    </script>
+</body>
+</html>
