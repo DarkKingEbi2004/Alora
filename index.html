@@ -9,11 +9,11 @@
     
     <style>
         :root {
-            --bg-deep: #050102; /* مشکی بی‌نهایت تاریک */
-            --bg-glass: rgba(18, 4, 8, 0.6); /* شیشه‌ای شرابی */
+            --bg-deep: #050102;
+            --bg-glass: rgba(18, 4, 8, 0.6);
             --wine-dark: #4a0d1d;
             --wine-light: #721c32;
-            --gold-accent: #d4af37; /* طلایی لوکس */
+            --gold-accent: #d4af37;
             --text-cream: #f2e6db;
             --text-muted: #bda89b;
         }
@@ -21,7 +21,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; -webkit-tap-highlight-color: transparent; outline: none; }
         body { background-color: var(--bg-deep); color: var(--text-cream); line-height: 1.8; overflow-x: hidden; font-weight: 300; }
 
-        /* نور پس‌زمینه تنفس‌کننده */
         .ambient-light {
             position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
             background: radial-gradient(circle at 50% 50%, rgba(114, 28, 50, 0.12) 0%, transparent 60%);
@@ -34,7 +33,6 @@
             100% { transform: scale(1.1); opacity: 1; }
         }
 
-        /* غبار جادویی معلق */
         #particles { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; overflow: hidden; }
         .magic-dust {
             position: absolute; bottom: -10px; width: 3px; height: 3px;
@@ -51,16 +49,14 @@
             100% { transform: translateY(-100vh) translateX(30px) scale(0.5); opacity: 0; }
         }
 
-        /* هدر مینیمال */
         header { text-align: center; padding: 3rem 1rem 1.5rem; position: relative; }
         header::after { content: ''; display: block; width: 40px; height: 1px; background: var(--gold-accent); margin: 20px auto 0; opacity: 0.5; }
         .logo { font-size: 2.5rem; font-weight: 700; color: var(--text-cream); letter-spacing: 8px; text-transform: uppercase; text-shadow: 0 0 25px rgba(114, 28, 50, 0.8); }
         .subtitle { font-size: 0.85rem; color: var(--gold-accent); opacity: 0.8; letter-spacing: 4px; margin-top: 5px; font-weight: 200; }
 
-        /* دکمه‌های شیشه‌ای و مینیمال */
         .btn {
             background: var(--bg-glass); border: 1px solid rgba(114, 28, 50, 0.4); color: var(--text-cream);
-            padding: 16px 24px; font-size: 1rem; font-weight: 300; border-radius: 40px; /* فرم بیضی */
+            padding: 16px 24px; font-size: 1rem; font-weight: 300; border-radius: 40px;
             cursor: pointer; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             width: 100%; max-width: 300px; margin: 15px auto; display: block; 
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -75,24 +71,23 @@
         .btn:hover, .btn:active { background: rgba(114, 28, 50, 0.3); border-color: var(--gold-accent); box-shadow: 0 0 25px rgba(114, 28, 50, 0.5); transform: translateY(-2px); }
 
         .page { display: none; padding: 20px; animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1); max-width: 800px; margin: 0 auto; min-height: 70vh; }
-        .page.active { display: block; }
+        .page.active { display: flex; flex-direction: column; align-items: center; } /* تغییر به flex برای کنترل بهتر چیدمان */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        .splash-quote { text-align: center; font-style: italic; color: var(--text-muted); margin: 30px 0 50px; font-size: 1.1rem; font-weight: 200; letter-spacing: 0.5px; }
+        .splash-quote { text-align: center; font-style: italic; color: var(--text-muted); margin: 30px 0 50px; font-size: 1.1rem; font-weight: 200; letter-spacing: 0.5px; width: 100%; }
 
-        /* استایل کارت‌های لوکس */
-        .reading-area { display: flex; flex-wrap: wrap; gap: 25px; justify-content: center; margin-top: 40px; }
-        .card-container { width: 135px; perspective: 1200px; cursor: pointer; }
+        /* استایل منطقه کارت‌ها - اصلاح شده برای جلوگیری از تداخل */
+        .reading-area { display: flex; flex-wrap: wrap; gap: 25px; justify-content: center; margin-top: 20px; margin-bottom: 60px; min-height: 250px; width: 100%; }
+        .card-container { width: 140px; perspective: 1200px; cursor: pointer; }
         .card { width: 100%; aspect-ratio: 2 / 3.2; position: relative; transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1); transform-style: preserve-3d; }
         .card.revealed { transform: rotateY(180deg); }
         .card.reversed.revealed { transform: rotateY(180deg) rotateZ(180deg); }
         
         .card-face {
             position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
-            border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.9);
         }
         
-        /* پشت کارتِ جادویی و مینیمال */
         .card-back { 
             background: #0a0204; border: 1px solid var(--wine-light); 
             display: flex; align-items: center; justify-content: center; position: relative; 
@@ -109,35 +104,36 @@
 
         .card-front { transform: rotateY(180deg); background-color: var(--bg-deep); border: 1px solid var(--gold-accent); }
         
-        /* فیلتر شرابی/گوتیک روی عکس‌ها */
-        .card-front img {
+        /* فیلتر اصلاح شده کارت‌ها - بدون باگ سیاهی */
+        .gothic-filter {
             width: 100%; height: 100%; object-fit: cover;
-            filter: grayscale(100%) sepia(100%) hue-rotate(315deg) saturate(400%) contrast(130%) brightness(65%);
-            mix-blend-mode: hard-light;
+            filter: grayscale(100%) sepia(80%) hue-rotate(320deg) saturate(300%) contrast(120%) brightness(70%);
         }
 
-        /* مدال تفسیر (پاپ‌آپ شیشه‌ای) */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 0, 1, 0.85); z-index: 1000; overflow-y: auto; padding: 20px; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); }
-        .modal-content { background: rgba(18, 4, 8, 0.7); border: 1px solid var(--wine-light); max-width: 450px; margin: 40px auto; padding: 35px 25px; border-radius: 16px; box-shadow: 0 0 60px rgba(74, 13, 29, 0.5); position: relative; }
+        /* مدال تفسیر */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 0, 1, 0.9); z-index: 1000; overflow-y: auto; padding: 20px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        .modal-content { background: rgba(15, 3, 6, 0.95); border: 1px solid var(--wine-light); max-width: 450px; margin: 40px auto; padding: 35px 25px; border-radius: 16px; box-shadow: 0 0 60px rgba(74, 13, 29, 0.6); position: relative; }
         .close-modal { position: absolute; top: 15px; left: 20px; color: var(--text-muted); font-size: 32px; font-weight: 200; cursor: pointer; transition: 0.3s; }
         .close-modal:hover { color: var(--gold-accent); }
         
         .card-name-title { color: var(--text-cream); text-align: center; font-size: 1.5rem; font-weight: 400; margin-bottom: 20px; letter-spacing: 1px; }
-        .modal-card-visual { width: 160px; height: 256px; margin: 0 auto 30px; display: block; border-radius: 10px; box-shadow: 0 0 40px rgba(114, 28, 50, 0.4); border: 1px solid var(--gold-accent); overflow: hidden; background: #000; }
-        .modal-card-visual img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%) sepia(100%) hue-rotate(315deg) saturate(400%) contrast(130%) brightness(65%); mix-blend-mode: hard-light; }
+        
+        /* کانتینر عکس داخل پاپ‌آپ */
+        .modal-card-visual { width: 160px; height: 256px; margin: 0 auto 30px; display: block; border-radius: 10px; box-shadow: 0 0 40px rgba(114, 28, 50, 0.5); border: 1px solid var(--gold-accent); overflow: hidden; background: var(--bg-deep); }
         
         .interpretation-section { margin-bottom: 25px; text-align: center; }
         .interpretation-section h4 { color: var(--gold-accent); margin-bottom: 12px; font-size: 1rem; font-weight: 400; letter-spacing: 1px; display: inline-block; border-bottom: 1px solid var(--wine-dark); padding-bottom: 5px; }
         .interpretation-section p { color: var(--text-cream); font-size: 0.95rem; line-height: 2; font-weight: 300; opacity: 0.9; }
 
-        /* متن درباره ما */
-        .about-text { text-align: center; font-size: 1.05rem; margin: 40px 0; line-height: 2.4; color: var(--text-muted); font-weight: 300; }
-        .footer { text-align: center; margin-top: 60px; padding-top: 25px; border-top: 1px solid rgba(114, 28, 50, 0.3); font-size: 0.85rem; color: var(--wine-light); letter-spacing: 1px; }
+        .about-text { text-align: center; font-size: 1.05rem; margin: 40px 0; line-height: 2.4; color: var(--text-muted); font-weight: 300; width: 100%; }
+        .footer { text-align: center; margin-top: 60px; padding-top: 25px; border-top: 1px solid rgba(114, 28, 50, 0.3); font-size: 0.85rem; color: var(--wine-light); letter-spacing: 1px; width: 100%; }
         .footer a { color: var(--gold-accent); text-decoration: none; font-weight: 400; letter-spacing: 2px; }
         
-        /* دکمه‌های بازگشت ظریف‌تر */
-        .btn-ghost { background: transparent; border: 1px solid rgba(242, 230, 219, 0.2); backdrop-filter: none; margin-top: 40px; box-shadow: none; color: var(--text-muted); }
+        .btn-ghost { background: transparent; border: 1px solid rgba(242, 230, 219, 0.2); backdrop-filter: none; box-shadow: none; color: var(--text-muted); width: 100%; max-width: 300px; margin-top: 10px; }
         .btn-ghost:hover { border-color: var(--text-muted); background: rgba(255,255,255,0.05); box-shadow: none; transform: none; }
+        
+        /* رفع مشکل دکمه "پایان چیدمان" */
+        .action-buttons { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; flex-grow: 1; padding-top: 20px; }
     </style>
 </head>
 <body>
@@ -160,14 +156,23 @@
         <button class="btn" onclick="startReading(1)">شهود روزانه (یک کارت)</button>
         <button class="btn" onclick="startReading(3)">مسیر زندگی (سه کارت)</button>
         <button class="btn" onclick="startReading(5)">پیوند سایه‌ها (فال رابطه)</button>
-        <button class="btn btn-ghost" onclick="nav('home')">بازگشت</button>
+        <div class="action-buttons">
+            <button class="btn btn-ghost" onclick="nav('home')">بازگشت</button>
+        </div>
     </div>
 
     <div id="reading-table" class="page">
-        <h2 id="reading-title" style="text-align: center; color: var(--text-cream); margin-bottom: 15px; font-weight: 300;"></h2>
-        <p style="text-align: center; font-size: 0.85rem; color: var(--wine-light); margin-bottom: 40px; letter-spacing: 0.5px;">برای کشف راز، روی کارت‌ها ضربه بزنید</p>
+        <div style="width: 100%;">
+            <h2 id="reading-title" style="text-align: center; color: var(--text-cream); margin-bottom: 10px; font-weight: 300;"></h2>
+            <p style="text-align: center; font-size: 0.85rem; color: var(--wine-light); margin-bottom: 20px; letter-spacing: 0.5px;">برای کشف راز، روی کارت‌ها ضربه بزنید</p>
+        </div>
+        
         <div class="reading-area" id="cards-container"></div>
-        <button class="btn btn-ghost" onclick="nav('reading-menu')">پایان چیدمان</button>
+        
+        <!-- دکمه پایین ثابت شد تا روی کارت نیفتد -->
+        <div class="action-buttons">
+            <button class="btn btn-ghost" onclick="nav('reading-menu')">پایان چیدمان</button>
+        </div>
     </div>
 
     <div id="about" class="page">
@@ -182,7 +187,9 @@
             <p>خلق شده در سایه ها</p>
             <p style="margin-top: 8px;">جهت ارتباط: <a href="https://t.me/Phonixsoul" dir="ltr">t.me/Phonixsoul</a></p>
         </div>
-        <button class="btn btn-ghost" onclick="nav('home')">بازگشت</button>
+        <div class="action-buttons">
+            <button class="btn btn-ghost" onclick="nav('home')">بازگشت</button>
+        </div>
     </div>
 
     <div id="card-modal" class="modal">
@@ -190,7 +197,7 @@
             <span class="close-modal" onclick="closeModal()">×</span>
             <h3 id="modal-card-name" class="card-name-title"></h3>
             <div style="text-align: center; margin-bottom: 30px;">
-                <div class="modal-card-visual"><img id="modal-card-img" src="" alt="Card" onerror="this.style.display='none'"></div>
+                <div class="modal-card-visual"><img id="modal-card-img" class="gothic-filter" src="" alt="Card"></div>
                 <p id="modal-card-state" style="color: var(--wine-light); margin-top: 15px; font-weight: 400; letter-spacing: 2px; font-size: 0.9rem;"></p>
             </div>
             <div id="modal-interpretation"></div>
@@ -198,14 +205,12 @@
     </div>
 
     <script>
-        // غبار جادویی
         function createParticles() {
             const container = document.getElementById('particles');
             for(let i = 0; i < 25; i++) {
                 let dust = document.createElement('div');
                 dust.className = 'magic-dust';
                 dust.style.left = Math.random() * 100 + 'vw';
-                // ترکیب رنگ طلایی و شرابی برای ذرات
                 dust.style.background = Math.random() > 0.5 ? '#d4af37' : '#8B142D';
                 dust.style.animationDuration = (Math.random() * 6 + 4) + 's';
                 dust.style.animationDelay = (Math.random() * 5) + 's';
@@ -275,7 +280,7 @@
                     <div class="card" onclick="revealCard(this, '${card.id}', ${isReversed})">
                         <div class="card-face card-back"></div>
                         <div class="card-face card-front">
-                            <img src="${card.imgSrc}" alt="${card.nameEn}">
+                            <img class="gothic-filter" src="${card.imgSrc}" alt="${card.nameEn}">
                         </div>
                     </div>
                 `;
